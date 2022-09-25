@@ -5,13 +5,22 @@ import (
 	"testing"
 )
 
-func TestBytePairEncoding(t *testing.T) {
-
-	strings := []string{
-		"Pen Penapple Apple Pen",
-	}
+func TestAllUniqueCharacters(t *testing.T) {
 
 	encoding := embedding.CreateBytePairEncoding()
-	encoding.Encode(strings, 5)
-	t.Error("fail")
+
+	tests := []struct {
+		input    []string
+		expected string
+	}{
+		{[]string{"Pen Penapple Apple Pen"}, "epPn laA"},
+		{[]string{"pen_", "penapple_", "apple_", "pen_"}, "pe_nal"},
+	}
+
+	for _, test := range tests {
+		vocabulary := encoding.AllUniqueCharacters(test.input)
+		if string(vocabulary) != test.expected {
+			t.Error("Expected: " + test.expected + "; Got: " + string(vocabulary))
+		}
+	}
 }

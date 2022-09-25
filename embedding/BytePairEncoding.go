@@ -11,7 +11,7 @@ func CreateBytePairEncoding() *BytePairEncoding {
 }
 
 func (e *BytePairEncoding) Encode(strings []string, numberOfMerges int) bool {
-	vocabulary := e.allUniqueCharacters(strings)
+	vocabulary := e.AllUniqueCharacters(strings)
 	fmt.Printf("%c", vocabulary)
 
 	for i := 1; i <= numberOfMerges; i++ {
@@ -21,26 +21,33 @@ func (e *BytePairEncoding) Encode(strings []string, numberOfMerges int) bool {
 	return false
 }
 
-// returns an array of all characters that appear in strings, order by decreasing order of occurrence
-func (e *BytePairEncoding) allUniqueCharacters(strings []string) []rune {
-	charsFound := map[rune]int{}
+// AllUniqueCharacters returns an array of all characters that appear in strings, order by decreasing order of occurrence
+func (e *BytePairEncoding) AllUniqueCharacters(strings []string) []rune {
+	var charsFound []rune
+	var countsFound []int
 
 	for _, s := range strings {
 		for _, r := range s {
-			count, found := charsFound[r]
-			if found {
-				count++
-			} else {
-				count = 1
+			found := false
+			for i, c := range charsFound {
+				if c == r {
+					countsFound[i] = countsFound[i] + 1
+					found = true
+					break
+				}
 			}
-			charsFound[r] = count
+			if !found {
+				charsFound = append(charsFound, r)
+				countsFound = append(countsFound, 1)
+			}
 		}
 	}
 
-	var orderedCounts []int
 	var orderedChars []rune
+	var orderedCounts []int
 
-	for foundChar, foundCount := range charsFound {
+	for j, foundChar := range charsFound {
+		foundCount := countsFound[j]
 		found := false
 		for i, orderedCount := range orderedCounts {
 			if foundCount > orderedCount {
