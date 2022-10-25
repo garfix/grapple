@@ -1,7 +1,7 @@
 package test
 
 import (
-	"garfixia.com/transformer/embedding"
+	"github.com/garfix/grapple/src/embedding"
 	"testing"
 )
 

@@ -1,13 +1,13 @@
 package model
 
-import "garfixia.com/transformer/embedding"
+import "github.com/garfix/grapple/src/embedding"
 
 type OriginalTransformer struct {
 }
 
 func CreateOriginalTransformer() *OriginalTransformer {
 
-	e := embedding.CreateBytePairEncoding()
+	embedding.CreateBytePairEncoding()
 
 	transformer := OriginalTransformer{}
 	return &transformer

@@ -1,4 +1,4 @@
-package model
+package sublayer
 
 type AttentionSublayer struct {
 }
