@@ -1,6 +1,10 @@
 package utils
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/garfix/grapple/src/tokenizer"
+)
 
 func StringArrayContains(haystack []string, needle string) bool {
 	for _, s := range haystack {
@@ -87,4 +91,46 @@ func MergeN(vocabulary []string, splits map[string][]string, wordFreqs map[strin
 	}
 
 	return merges, vocabulary
+}
+
+func Tokenize(text string, merges map[stringPair]string) []string {
+	// preTokenizeResult = tokenizer._tokenizer.pre_tokenizer.pre_tokenize_str(text)
+	// pre_tokenized_text = [word for word, offset in pre_tokenize_result]
+
+	tok := tokenizer.CreateSimpleTokenizer()
+	tokens := tok.Tokenize(text)
+	words := tokenizer.AddBeginToken(tokens, "Ġ")
+
+	splits := map[string][]string{}
+	for _, word := range words {
+		splits[word] = []string{}
+		for _, letter := range word {
+			splits[word] = append(splits[word], string(letter))
+		}
+	}
+
+	// splits = [[l for l in word] for word in pre_tokenized_text]
+	for pair, merge := range merges {
+		for idx, split := range splits {
+			i := 0
+			for i < len(split)-1 {
+				if split[i] == pair.first && split[i+1] == pair.second {
+					newSplit := []string{}
+					newSplit = append(newSplit, split[:i]...)
+					newSplit = append(newSplit, merge)
+					newSplit = append(newSplit, split[i+2:]...)
+					split = newSplit
+				} else {
+					i += 1
+				}
+			}
+			splits[idx] = split
+		}
+	}
+
+	result := []string{}
+	for _, split := range splits {
+		result = append(result, split...)
+	}
+	return result
 }

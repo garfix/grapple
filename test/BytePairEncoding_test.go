@@ -115,11 +115,19 @@ func TestBPE(t *testing.T) {
 
 	fmt.Printf("%s\n", vocabulary)
 
-	merges = merges
+	tokens := utils.Tokenize("This is not a token.", merges)
 
 	// for s, t := range merges {
 	// 	fmt.Printf("%s: %s\n", s, t)
 	// }
+
+	println()
+
+	for _, token := range tokens {
+		print(token + " ")
+	}
+
+	println()
 
 	// bpe := embedding.CreateBytePairEncoding()
 	// bpe.Encode()
