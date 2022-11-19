@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"sort"
 	"testing"
 
@@ -88,33 +89,37 @@ func TestBPE(t *testing.T) {
 		}
 	}
 
-	pairFreqs := utils.ComputePairFreqs(wordFreqs, splits)
+	// pairFreqs := utils.ComputePairFreqs(wordFreqs, splits)
 
 	// for k, v := range pairFreqs {
 	// 	println(k, v)
 	// }
 
-	bestPair := ""
-	maxFreq := 0
+	// bestPair := ""
+	// maxFreq := 0
 
-	for pair, freq := range pairFreqs {
-		if maxFreq < freq {
-			bestPair = pair
-			maxFreq = freq
-		}
-	}
+	// for pair, freq := range pairFreqs {
+	// 	if maxFreq < freq {
+	// 		bestPair = pair
+	// 		maxFreq = freq
+	// 	}
+	// }
 
-	println(bestPair, maxFreq)
+	// println(bestPair, maxFreq)
 
 	// splits = utils.MergePair("Ġ", "t", wordFreqs, splits)
 
-	// merges, vocabulary := utils.MergeN(vocabulary, splits, wordFreqs, 50)
+	fmt.Printf("%s\n", vocabulary)
+
+	merges, vocabulary := utils.MergeN(vocabulary, splits, wordFreqs, 50)
+
+	fmt.Printf("%s\n", vocabulary)
+
+	merges = merges
 
 	// for s, t := range merges {
-	// 	println(s, t)
+	// 	fmt.Printf("%s: %s\n", s, t)
 	// }
-
-	// fmt.Printf("%s", vocabulary)
 
 	// bpe := embedding.CreateBytePairEncoding()
 	// bpe.Encode()

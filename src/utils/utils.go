@@ -1,5 +1,7 @@
 package utils
 
+import "fmt"
+
 func StringArrayContains(haystack []string, needle string) bool {
 	for _, s := range haystack {
 		if s == needle {
@@ -9,15 +11,20 @@ func StringArrayContains(haystack []string, needle string) bool {
 	return false
 }
 
-func ComputePairFreqs(wordFreqs map[string]int, splits map[string][]string) map[string]int {
-	pairFreqs := map[string]int{}
+type stringPair struct {
+	first  string
+	second string
+}
+
+func ComputePairFreqs(wordFreqs map[string]int, splits map[string][]string) map[stringPair]int {
+	pairFreqs := map[stringPair]int{}
 	for word, freq := range wordFreqs {
 		split := splits[word]
 		if len(split) == 1 {
 			continue
 		}
 		for i := 0; i < len(split)-1; i++ {
-			pair := split[i] + split[i+1]
+			pair := stringPair{split[i], split[i+1]}
 			_, found := pairFreqs[pair]
 			if !found {
 				pairFreqs[pair] = 0
@@ -52,14 +59,14 @@ func MergePair(a string, b string, wordFreqs map[string]int, splits map[string][
 	return splits
 }
 
-func MergeN(vocabulary []string, splits map[string][]string, wordFreqs map[string]int, vocabularySize int) (map[string]string, []string) {
+func MergeN(vocabulary []string, splits map[string][]string, wordFreqs map[string]int, vocabularySize int) (map[stringPair]string, []string) {
 
-	merges := map[string]string{}
+	merges := map[stringPair]string{}
 
 	for len(vocabulary) < vocabularySize {
 		pairFreqs := ComputePairFreqs(wordFreqs, splits)
 
-		bestPair := ""
+		bestPair := stringPair{}
 		maxFreq := 0
 
 		for pair, freq := range pairFreqs {
@@ -69,9 +76,14 @@ func MergeN(vocabulary []string, splits map[string][]string, wordFreqs map[strin
 			}
 		}
 
-		splits = MergePair(string(bestPair[0]), string(bestPair[1]), wordFreqs, splits)
-		merges[bestPair] = string(bestPair[0]) + string(bestPair[1])
-		vocabulary = append(vocabulary, string(bestPair[0])+string(bestPair[1]))
+		a := bestPair.first
+		b := bestPair.second
+
+		splits = MergePair(a, b, wordFreqs, splits)
+		merges[bestPair] = a + b
+
+		fmt.Printf("%s: %s (%d)\n", bestPair, a+b, maxFreq)
+		vocabulary = append(vocabulary, a+b)
 	}
 
 	return merges, vocabulary
