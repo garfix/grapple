@@ -20,8 +20,44 @@ type stringPair struct {
 	second string
 }
 
-func ComputePairFreqs(wordFreqs map[string]int, splits map[string][]string) map[stringPair]int {
-	pairFreqs := map[stringPair]int{}
+type stringPairFreq struct {
+	pair stringPair
+	freq int
+}
+
+type stringPairFreqs struct {
+	freqs map[stringPair]int
+	order []stringPair
+}
+
+func CreateStringPairFreqs() stringPairFreqs {
+	return stringPairFreqs{
+		freqs: map[stringPair]int{},
+		order: []stringPair{},
+	}
+}
+
+func (f stringPairFreqs) add(pair stringPair, freq int) stringPairFreqs {
+	_, found := f.freqs[pair]
+	if found {
+		f.freqs[pair] += freq
+	} else {
+		f.order = append(f.order, pair)
+		f.freqs[pair] = freq
+	}
+	return f
+}
+
+func (f stringPairFreqs) getAll() []stringPairFreq {
+	items := []stringPairFreq{}
+	for _, item := range f.order {
+		items = append(items, stringPairFreq{item, f.freqs[item]})
+	}
+	return items
+}
+
+func ComputePairFreqs(wordFreqs map[string]int, splits map[string][]string) stringPairFreqs {
+	pairFreqs := CreateStringPairFreqs()
 	for word, freq := range wordFreqs {
 		split := splits[word]
 		if len(split) == 1 {
@@ -29,11 +65,7 @@ func ComputePairFreqs(wordFreqs map[string]int, splits map[string][]string) map[
 		}
 		for i := 0; i < len(split)-1; i++ {
 			pair := stringPair{split[i], split[i+1]}
-			_, found := pairFreqs[pair]
-			if !found {
-				pairFreqs[pair] = 0
-			}
-			pairFreqs[pair] += freq
+			pairFreqs = pairFreqs.add(pair, freq)
 		}
 	}
 	return pairFreqs
@@ -73,10 +105,10 @@ func MergeN(vocabulary []string, splits map[string][]string, wordFreqs map[strin
 		bestPair := stringPair{}
 		maxFreq := 0
 
-		for pair, freq := range pairFreqs {
-			if maxFreq < freq {
-				bestPair = pair
-				maxFreq = freq
+		for _, pairFreq := range pairFreqs.getAll() {
+			if maxFreq < pairFreq.freq {
+				bestPair = pairFreq.pair
+				maxFreq = pairFreq.freq
 			}
 		}
 
