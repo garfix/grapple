@@ -1,19 +1,20 @@
 package tokenizer
 
 import (
-	"fmt"
 	"sort"
 
 	"github.com/garfix/grapple/src/utils"
 )
 
 type BpeTokenizer struct {
-	merges map[StringPair]string
+	mergeOrder []StringPair
+	merges     map[StringPair]string
 }
 
 func CreateBpeTokenizer() *BpeTokenizer {
 	return &BpeTokenizer{
-		merges: map[StringPair]string{},
+		mergeOrder: []StringPair{},
+		merges:     map[StringPair]string{},
 	}
 }
 
@@ -63,8 +64,9 @@ func (t *BpeTokenizer) Train(corpus []string) {
 		}
 	}
 
-	merges, _ := t.mergeN(vocabulary, splits, words, wordFreqs, 50)
+	merges, mergeOrder, _ := t.mergeN(vocabulary, splits, words, wordFreqs, 50)
 	t.merges = merges
+	t.mergeOrder = mergeOrder
 }
 
 func (t *BpeTokenizer) computePairFreqs(words []string, wordFreqs map[string]int, splits map[string][]string) ([]StringPair, map[StringPair]int) {
@@ -116,9 +118,10 @@ func (t *BpeTokenizer) mergePair(a string, b string, words []string, wordFreqs m
 	return splits
 }
 
-func (t *BpeTokenizer) mergeN(vocabulary []string, splits map[string][]string, words []string, wordFreqs map[string]int, vocabularySize int) (map[StringPair]string, []string) {
+func (t *BpeTokenizer) mergeN(vocabulary []string, splits map[string][]string, words []string, wordFreqs map[string]int, vocabularySize int) (map[StringPair]string, []StringPair, []string) {
 
 	merges := map[StringPair]string{}
+	mergeOrder := []StringPair{}
 
 	for len(vocabulary) < vocabularySize {
 		pairs, pairFreqs := t.computePairFreqs(words, wordFreqs, splits)
@@ -139,12 +142,13 @@ func (t *BpeTokenizer) mergeN(vocabulary []string, splits map[string][]string, w
 
 		splits = t.mergePair(a, b, words, wordFreqs, splits)
 		merges[bestPair] = a + b
+		mergeOrder = append(mergeOrder, bestPair)
 
-		fmt.Printf("%s: %s (%d)\n", bestPair, a+b, maxFreq)
+		// fmt.Printf("%s: %s (%d)\n", bestPair, a+b, maxFreq)
 		vocabulary = append(vocabulary, a+b)
 	}
 
-	return merges, vocabulary
+	return merges, mergeOrder, vocabulary
 }
 
 func (t *BpeTokenizer) Tokenize(text string) []string {
@@ -161,7 +165,8 @@ func (t *BpeTokenizer) Tokenize(text string) []string {
 		}
 	}
 
-	for pair, merge := range t.merges {
+	for _, pair := range t.mergeOrder {
+		merge := t.merges[pair]
 		for _, word := range words {
 			split := splits[word]
 
@@ -182,7 +187,8 @@ func (t *BpeTokenizer) Tokenize(text string) []string {
 	}
 
 	result := []string{}
-	for _, split := range splits {
+	for _, word := range words {
+		split := splits[word]
 		result = append(result, split...)
 	}
 	return result
