@@ -1,13 +1,10 @@
 package test
 
 import (
-	"fmt"
-	"sort"
 	"testing"
 
 	"github.com/garfix/grapple/src/embedding"
 	"github.com/garfix/grapple/src/tokenizer"
-	"github.com/garfix/grapple/src/utils"
 )
 
 func TestAllUniqueCharacters(t *testing.T) {
@@ -39,87 +36,10 @@ func TestBPE(t *testing.T) {
 		"Hopefully, you will be able to understand how they are trained and generate tokens.",
 	}
 
-	tok := tokenizer.CreateSimpleTokenizer()
+	bpeTok := tokenizer.CreateBpeTokenizer()
+	bpeTok.Train(corpus)
 
-	wordFreqs := map[string]int{}
-	for _, text := range corpus {
-		tokens := tok.Tokenize(text)
-		words := tokenizer.AddBeginToken(tokens, "Ġ")
-		for _, word := range words {
-			freq, found := wordFreqs[word]
-			if found {
-				freq++
-			} else {
-				freq = 1
-			}
-			wordFreqs[word] = freq
-		}
-	}
-
-	// fmt.Print(wordFreqs)
-
-	alphabet := []string{}
-
-	for word := range wordFreqs {
-		for _, letter := range word {
-			if !utils.StringArrayContains(alphabet, string(letter)) {
-				alphabet = append(alphabet, string(letter))
-			}
-		}
-
-	}
-
-	sort.Strings(alphabet)
-
-	vocabulary := []string{}
-	vocabulary = append(vocabulary, "<|endoftext|>")
-	vocabulary = append(vocabulary, alphabet...)
-
-	println()
-
-	// for _, a := range vocabulary {
-	// 	print(a)
-	// }
-
-	splits := map[string][]string{}
-	for word := range wordFreqs {
-		splits[word] = []string{}
-		for _, letter := range word {
-			splits[word] = append(splits[word], string(letter))
-		}
-	}
-
-	// pairFreqs := utils.ComputePairFreqs(wordFreqs, splits)
-
-	// for k, v := range pairFreqs {
-	// 	println(k, v)
-	// }
-
-	// bestPair := ""
-	// maxFreq := 0
-
-	// for pair, freq := range pairFreqs {
-	// 	if maxFreq < freq {
-	// 		bestPair = pair
-	// 		maxFreq = freq
-	// 	}
-	// }
-
-	// println(bestPair, maxFreq)
-
-	// splits = utils.MergePair("Ġ", "t", wordFreqs, splits)
-
-	fmt.Printf("%s\n", vocabulary)
-
-	merges, vocabulary := utils.MergeN(vocabulary, splits, wordFreqs, 50)
-
-	fmt.Printf("%s\n", vocabulary)
-
-	tokens := utils.Tokenize("This is not a token.", merges)
-
-	// for s, t := range merges {
-	// 	fmt.Printf("%s: %s\n", s, t)
-	// }
+	tokens := bpeTok.Tokenize("This is not a token.")
 
 	println()
 
@@ -129,7 +49,6 @@ func TestBPE(t *testing.T) {
 
 	println()
 
-	// bpe := embedding.CreateBytePairEncoding()
-	// bpe.Encode()
-	// t.Error("err!")
+	t.Error("err!")
+
 }
