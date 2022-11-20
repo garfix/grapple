@@ -12,8 +12,19 @@ func AddEndToken(tokens []string, endToken string) []string {
 // Adds endToken to each of tokens
 func AddBeginToken(tokens []string, beginToken string) []string {
 	newTokens := []string{}
+	prevIsSpace := false
 	for _, token := range tokens {
-		newTokens = append(newTokens, beginToken+token)
+
+		if token == " " {
+			prevIsSpace = true
+		} else {
+			newToken := token
+			if prevIsSpace {
+				newToken = beginToken + token
+			}
+			newTokens = append(newTokens, newToken)
+			prevIsSpace = false
+		}
 	}
 	return newTokens
 }

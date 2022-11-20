@@ -1,6 +1,7 @@
 package test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/garfix/grapple/src/embedding"
@@ -40,15 +41,13 @@ func TestBPE(t *testing.T) {
 	bpeTok.Train(corpus)
 
 	tokens := bpeTok.Tokenize("This is not a token.")
+	expected := []string{"This", "Ġis", "Ġ", "n", "o", "t", "Ġa", "Ġtoken", "."}
 
-	println()
+	tokensSeq := strings.Join(tokens, " ")
+	expectedSeq := strings.Join(expected, " ")
 
-	for _, token := range tokens {
-		print(token + " ")
+	if tokensSeq != expectedSeq {
+		t.Error("Expected: " + expectedSeq + ", got: " + tokensSeq)
 	}
-
-	println()
-
-	t.Error("err!")
 
 }
