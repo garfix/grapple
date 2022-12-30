@@ -4,13 +4,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/garfix/grapple/src/embedding"
+	"github.com/garfix/grapple/src/encoding"
 	"github.com/garfix/grapple/src/tokenizer"
 )
 
 func TestAllUniqueCharacters(t *testing.T) {
 
-	encoding := embedding.CreateBytePairEncoding()
+	encoding := encoding.CreateBytePairEncoding()
 
 	tests := []struct {
 		input    []string
