@@ -41,13 +41,13 @@ func (sg *SkipGram) Train(wordIndexes []int) {
 // http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/
 // https://medium.datadriveninvestor.com/word2vec-skip-gram-model-explained-383fa6ddc4ae
 // https://hmkcode.com/ai/backpropagation-step-by-step/
-func (sg *SkipGram) trainPair(inputWordIndex1 int, expectedWordIndex int) {
+func (sg *SkipGram) trainPair(inputWordIndex int, expectedWordIndex int) {
 
-	sg.updateInputValues(inputWordIndex1)
+	sg.updateInputValues(inputWordIndex)
 	sg.updateHiddenValues()
 	sg.updateOutputValues()
 	sg.propagateBackOutputErrors(expectedWordIndex)
-	sg.propagateBackHiddenErrors(inputWordIndex1, expectedWordIndex)
+	sg.propagateBackHiddenErrors(expectedWordIndex)
 }
 
 func (sg *SkipGram) updateInputValues(wordIndex int) {
@@ -88,18 +88,19 @@ func (sg *SkipGram) propagateBackOutputErrors(expectedWordIndex int) {
 	}
 }
 
-func (sg *SkipGram) propagateBackHiddenErrors(inputWordIndex int, expectedWordIndex int) {
+func (sg *SkipGram) propagateBackHiddenErrors(expectedWordIndex int) {
 	for wordIndex := 0; wordIndex < sg.wordCount; wordIndex++ {
 
 		delta := sg.calculateDelta(wordIndex, expectedWordIndex)
 		inputValue := 0.0
-		if wordIndex == inputWordIndex {
+		if wordIndex == sg.input.wordIndex {
 			inputValue = 1.0
 		}
 
 		for featureIndex := 0; featureIndex < sg.featureCount; featureIndex++ {
 			weight := sg.hidden.weights[wordIndex][featureIndex]
-			newWeight := weight - sg.learningRate*(inputValue*delta)
+			outputWeight := sg.output.weights[wordIndex][featureIndex]
+			newWeight := weight - sg.learningRate*(inputValue*delta*outputWeight)
 			sg.hidden.weights[wordIndex][featureIndex] = newWeight
 		}
 	}
@@ -110,7 +111,7 @@ func (sg *SkipGram) calculateDelta(wordIndex int, expectedWordIndex int) float64
 	if wordIndex == expectedWordIndex {
 		predicted = 1.0
 	}
-	actual := sg.hidden.values[wordIndex]
+	actual := sg.output.values[wordIndex]
 	delta := predicted - actual
 	return delta
 }
