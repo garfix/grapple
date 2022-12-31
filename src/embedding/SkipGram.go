@@ -9,9 +9,10 @@ type SkipGram struct {
 	wordCount    int
 	featureCount int
 	windowSize   int
+	learningRate float64
 }
 
-func CreateSkipGram(wordCount int, featureCount int, windowSize int) *SkipGram {
+func CreateSkipGram(wordCount int, featureCount int, windowSize int, learningrate float64) *SkipGram {
 	return &SkipGram{
 		input:        CreateInputLayer(wordCount),
 		hidden:       CreateHiddenLayer(wordCount, featureCount),
@@ -19,6 +20,7 @@ func CreateSkipGram(wordCount int, featureCount int, windowSize int) *SkipGram {
 		featureCount: featureCount,
 		wordCount:    wordCount,
 		windowSize:   windowSize,
+		learningRate: learningrate,
 	}
 }
 
@@ -26,60 +28,89 @@ func (sg *SkipGram) Train(wordIndexes []int) {
 
 	for i, wordIndex1 := range wordIndexes {
 		for j := i - sg.windowSize; j <= i+sg.windowSize; j++ {
-			if j == i {
-				continue
-			}
-			if j < 0 {
-				continue
-			}
-			if j >= len(wordIndexes) {
+			if j == i || j < 0 || j >= len(wordIndexes) {
 				continue
 			}
 
 			wordIndex2 := wordIndexes[j]
-
 			sg.trainPair(wordIndex1, wordIndex2)
-
 		}
-
 	}
 }
 
 // http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/
 // https://medium.datadriveninvestor.com/word2vec-skip-gram-model-explained-383fa6ddc4ae
-func (sg *SkipGram) trainPair(wordIndex1 int, wordIndex2 int) {
-	// set input layer
-	sg.input.Set(wordIndex1)
+// https://hmkcode.com/ai/backpropagation-step-by-step/
+func (sg *SkipGram) trainPair(inputWordIndex1 int, expectedWordIndex int) {
 
-	// get current hidden features for word
-	hiddenValues := sg.hidden.matrix[sg.input.wordIndex]
+	sg.updateInputValues(inputWordIndex1)
+	sg.updateHiddenValues()
+	sg.updateOutputValues()
+	sg.propagateBackOutputErrors(expectedWordIndex)
+	sg.propagateBackHiddenErrors(inputWordIndex1, expectedWordIndex)
+}
 
-	// set output layer
-	outputValues := make([]float64, sg.wordCount)
+func (sg *SkipGram) updateInputValues(wordIndex int) {
+	sg.input.Set(wordIndex)
+}
+
+func (sg *SkipGram) updateHiddenValues() {
+	hiddenValues := sg.hidden.weights[sg.input.wordIndex]
+	sg.hidden.values = hiddenValues
+}
+
+func (sg *SkipGram) updateOutputValues() {
+	hiddenValues := sg.hidden.values
 	summedValue := 0.0
 	for i := 0; i < sg.wordCount; i++ {
 		product := dotProduct(hiddenValues, sg.output.weights[sg.input.wordIndex])
 		value := math.Exp(product)
 		summedValue += value
-		outputValues[i] = value
+		sg.output.values[i] = value
 	}
 	for i := 0; i < sg.wordCount; i++ {
 		// softmax: exp(x) / sum (exp(x))
-		sg.output.outputVector[i] = outputValues[i] / summedValue
+		sg.output.values[i] /= summedValue
 	}
-	for i := 0; i < sg.wordCount; i++ {
-		target := 0.0
-		if i == wordIndex2 {
-			target = 1.0
+}
+
+func (sg *SkipGram) propagateBackOutputErrors(expectedWordIndex int) {
+	for wordIndex := 0; wordIndex < sg.wordCount; wordIndex++ {
+
+		delta := sg.calculateDelta(wordIndex, expectedWordIndex)
+
+		for featureIndex := 0; featureIndex < sg.featureCount; featureIndex++ {
+			weight := sg.output.weights[wordIndex][featureIndex]
+			hiddenValue := sg.hidden.values[featureIndex]
+			newWeight := weight - sg.learningRate*(hiddenValue*delta)
+			sg.output.weights[wordIndex][featureIndex] = newWeight
 		}
-		activation := sg.output.outputVector[i]
-
-		// calculate loss
-		// loss := crossEntropyLoss(expected, actual)
-		error := target - activation
-
-		// back-propagation
-		delta := error * activation * (1.0 - activation)
-
 	}
+}
+
+func (sg *SkipGram) propagateBackHiddenErrors(inputWordIndex int, expectedWordIndex int) {
+	for wordIndex := 0; wordIndex < sg.wordCount; wordIndex++ {
+
+		delta := sg.calculateDelta(wordIndex, expectedWordIndex)
+		inputValue := 0.0
+		if wordIndex == inputWordIndex {
+			inputValue = 1.0
+		}
+
+		for featureIndex := 0; featureIndex < sg.featureCount; featureIndex++ {
+			weight := sg.hidden.weights[wordIndex][featureIndex]
+			newWeight := weight - sg.learningRate*(inputValue*delta)
+			sg.hidden.weights[wordIndex][featureIndex] = newWeight
+		}
+	}
+}
+
+func (sg *SkipGram) calculateDelta(wordIndex int, expectedWordIndex int) float64 {
+	predicted := 0.0
+	if wordIndex == expectedWordIndex {
+		predicted = 1.0
+	}
+	actual := sg.hidden.values[wordIndex]
+	delta := predicted - actual
+	return delta
 }
