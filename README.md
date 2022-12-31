@@ -2,17 +2,29 @@
 
 Learning to build a transformer, in Go.
 
-## Byte-pair encoding
+## Pre-tokenization
 
-https://stats.stackexchange.com/questions/469226/how-does-transformer-use-bpe
-https://towardsdatascience.com/byte-pair-encoding-subword-based-tokenization-algorithm-77828a70bee0
+Turn a sentence into an array of words, and add spacing-tokens.
 
-## Definitions
+I implemented a simple custom tokenizer and a simple custom add-token-to-begin function.
 
-* **raw input** The text strings that serve as input to the system.
-* **character** A unicode character. In Go this is a rune.
-* **token** One or more characters
-* **subword** One or more characters, all part of the raw input
+## Tokenization
 
+There are three types of tokenizers:
 
+- byte-pair encoding
+- word-piece
+- unigram
 
+I implemented byte-pair encoding
+
+## Embedding
+
+Turns a word into an n-dimensional vector, intended to capture semantic similarity
+
+Embedders:
+
+- skip-gram
+- continuous bag of words (CBOW)
+
+I will implement skip-gram
