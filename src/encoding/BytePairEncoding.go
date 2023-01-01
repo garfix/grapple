@@ -2,7 +2,6 @@ package encoding
 
 import "fmt"
 
-// BytePairEncoding https://en.wikipedia.org/wiki/Byte_pair_encoding
 type BytePairEncoding struct {
 }
 

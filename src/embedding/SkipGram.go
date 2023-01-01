@@ -38,9 +38,6 @@ func (sg *SkipGram) Train(wordIndexes []int) {
 	}
 }
 
-// http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/
-// https://medium.datadriveninvestor.com/word2vec-skip-gram-model-explained-383fa6ddc4ae
-// https://hmkcode.com/ai/backpropagation-step-by-step/
 func (sg *SkipGram) trainPair(inputWordIndex int, expectedWordIndex int) {
 
 	sg.updateInputValues(inputWordIndex)
@@ -114,4 +111,8 @@ func (sg *SkipGram) calculateDelta(wordIndex int, expectedWordIndex int) float64
 	actual := sg.output.values[wordIndex]
 	delta := predicted - actual
 	return delta
+}
+
+func (sg *SkipGram) GetWordFeatures(wordIndex int) []float64 {
+	return sg.hidden.weights[wordIndex]
 }
