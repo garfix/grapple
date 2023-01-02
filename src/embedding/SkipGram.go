@@ -104,11 +104,11 @@ func (sg *SkipGram) propagateBackHiddenErrors(expectedWordIndex int) {
 }
 
 func (sg *SkipGram) calculateDelta(wordIndex int, expectedWordIndex int) float64 {
-	predicted := 0.0
+	actual := 0.0
 	if wordIndex == expectedWordIndex {
-		predicted = 1.0
+		actual = 1.0
 	}
-	actual := sg.output.values[wordIndex]
+	predicted := sg.output.values[wordIndex]
 	delta := predicted - actual
 	return delta
 }

@@ -11,7 +11,7 @@ func TestSkipGram(t *testing.T) {
 
 	skipGram := embedding.CreateSkipGram(10000, 300, 2, 0.5)
 
-	// the black cat sat on the couch and the brown dog slept on the rug
+	// the black cat sat on the couch and the brown dog slept on the sat
 	input := []int{1, 2, 3, 4, 5, 1, 6, 7, 1, 8, 9, 10, 5, 1, 11}
 
 	skipGram.Train(input)
@@ -19,15 +19,15 @@ func TestSkipGram(t *testing.T) {
 	// expected := []float64{2.0, 3.1, 5.4}
 	blackFeatures := skipGram.GetWordFeatures(2)
 	brownFeatures := skipGram.GetWordFeatures(8)
-	rugFeatures := skipGram.GetWordFeatures(11)
+	satFeatures := skipGram.GetWordFeatures(4)
 
 	blackBrownSimilarity := embedding.CalculateCosineSimilarity(blackFeatures, brownFeatures)
-	blackRugSimilarity := embedding.CalculateCosineSimilarity(blackFeatures, rugFeatures)
-	brownRugSimilarity := embedding.CalculateCosineSimilarity(brownFeatures, rugFeatures)
+	blackSatSimilarity := embedding.CalculateCosineSimilarity(blackFeatures, satFeatures)
+	brownSatSimilarity := embedding.CalculateCosineSimilarity(brownFeatures, satFeatures)
 
 	fmt.Printf("black-brown: %v\n", blackBrownSimilarity)
-	fmt.Printf("black-rug: %v\n", blackRugSimilarity)
-	fmt.Printf("brown-rug: %v\n", brownRugSimilarity)
+	fmt.Printf("black-sat: %v\n", blackSatSimilarity)
+	fmt.Printf("brown-sat: %v\n", brownSatSimilarity)
 
 	t.Errorf("fail")
 
