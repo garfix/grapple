@@ -38,13 +38,13 @@ func (sg *SkipGram) Train(wordIndexes []int) {
 	}
 }
 
-func (sg *SkipGram) trainPair(inputWordIndex int, expectedWordIndex int) {
+func (sg *SkipGram) trainPair(inputWordIndex int, outputWordIndex int) {
 
 	sg.updateInputValues(inputWordIndex)
 	sg.updateHiddenValues()
 	sg.updateOutputValues()
-	sg.propagateBackOutputErrors(expectedWordIndex)
-	sg.propagateBackHiddenErrors(expectedWordIndex)
+	sg.propagateBackOutputErrors(outputWordIndex)
+	sg.propagateBackHiddenErrors(outputWordIndex)
 }
 
 func (sg *SkipGram) updateInputValues(wordIndex int) {
@@ -60,7 +60,7 @@ func (sg *SkipGram) updateOutputValues() {
 	hiddenValues := sg.hidden.values
 	summedValue := 0.0
 	for i := 0; i < sg.wordCount; i++ {
-		product := dotProduct(hiddenValues, sg.output.weights[sg.input.wordIndex])
+		product := DotProduct(hiddenValues, sg.output.weights[i])
 		value := math.Exp(product)
 		summedValue += value
 		sg.output.values[i] = value
@@ -71,10 +71,10 @@ func (sg *SkipGram) updateOutputValues() {
 	}
 }
 
-func (sg *SkipGram) propagateBackOutputErrors(expectedWordIndex int) {
+func (sg *SkipGram) propagateBackOutputErrors(ouputWordIndex int) {
 	for wordIndex := 0; wordIndex < sg.wordCount; wordIndex++ {
 
-		delta := sg.calculateDelta(wordIndex, expectedWordIndex)
+		delta := sg.calculateDelta(wordIndex, ouputWordIndex)
 
 		for featureIndex := 0; featureIndex < sg.featureCount; featureIndex++ {
 			weight := sg.output.weights[wordIndex][featureIndex]
@@ -85,10 +85,10 @@ func (sg *SkipGram) propagateBackOutputErrors(expectedWordIndex int) {
 	}
 }
 
-func (sg *SkipGram) propagateBackHiddenErrors(expectedWordIndex int) {
+func (sg *SkipGram) propagateBackHiddenErrors(outputWordIndex int) {
 	for wordIndex := 0; wordIndex < sg.wordCount; wordIndex++ {
 
-		delta := sg.calculateDelta(wordIndex, expectedWordIndex)
+		delta := sg.calculateDelta(wordIndex, outputWordIndex)
 		inputValue := 0.0
 		if wordIndex == sg.input.wordIndex {
 			inputValue = 1.0
@@ -103,9 +103,9 @@ func (sg *SkipGram) propagateBackHiddenErrors(expectedWordIndex int) {
 	}
 }
 
-func (sg *SkipGram) calculateDelta(wordIndex int, expectedWordIndex int) float64 {
+func (sg *SkipGram) calculateDelta(wordIndex int, outputWordIndex int) float64 {
 	actual := 0.0
-	if wordIndex == expectedWordIndex {
+	if wordIndex == outputWordIndex {
 		actual = 1.0
 	}
 	predicted := sg.output.values[wordIndex]

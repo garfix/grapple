@@ -9,14 +9,17 @@ import (
 
 func TestSkipGram(t *testing.T) {
 
-	skipGram := embedding.CreateSkipGram(10000, 300, 2, 0.5)
+	// rand.Seed(time.Now().UnixNano())
 
-	// the black cat sat on the couch and the brown dog slept on the sat
+	skipGram := embedding.CreateSkipGram(10000, 300, 2, 1.0)
+
+	// the black cat sat on the couch and the brown dog slept on the rug
 	input := []int{1, 2, 3, 4, 5, 1, 6, 7, 1, 8, 9, 10, 5, 1, 11}
 
+	// for i := 0; i < 1; i++ {
 	skipGram.Train(input)
+	// }
 
-	// expected := []float64{2.0, 3.1, 5.4}
 	blackFeatures := skipGram.GetWordFeatures(2)
 	brownFeatures := skipGram.GetWordFeatures(8)
 	satFeatures := skipGram.GetWordFeatures(4)
@@ -28,6 +31,14 @@ func TestSkipGram(t *testing.T) {
 	fmt.Printf("black-brown: %v\n", blackBrownSimilarity)
 	fmt.Printf("black-sat: %v\n", blackSatSimilarity)
 	fmt.Printf("brown-sat: %v\n", brownSatSimilarity)
+
+	// fmt.Printf("black-brown: %v\n", embedding.DotProduct(blackFeatures, brownFeatures))
+	// fmt.Printf("black-sat: %v\n", embedding.DotProduct(blackFeatures, satFeatures))
+	// fmt.Printf("brown-sat: %v\n", embedding.DotProduct(brownFeatures, satFeatures))
+
+	// fmt.Printf("black: %v\n\n", blackFeatures)
+	// fmt.Printf("brown: %v\n\n", brownFeatures)
+	// fmt.Printf("sat  : %v\n\n", satFeatures)
 
 	t.Errorf("fail")
 
