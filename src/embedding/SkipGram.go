@@ -86,6 +86,26 @@ func (sg *SkipGram) propagateBackOutputErrors(ouputWordIndex int) {
 }
 
 func (sg *SkipGram) propagateBackHiddenErrors(outputWordIndex int) {
+
+	// handling only the active input, because the calculations for inactive inputs don't make their weights change
+	inputValue := 1.0
+	inWordIndex := sg.input.wordIndex
+
+	for outWordIndex := 0; outWordIndex < sg.wordCount; outWordIndex++ {
+
+		delta := sg.calculateDelta(outWordIndex, outputWordIndex)
+
+		for featureIndex := 0; featureIndex < sg.featureCount; featureIndex++ {
+			weight := sg.hidden.weights[inWordIndex][featureIndex]
+			outputWeight := sg.output.weights[outWordIndex][featureIndex]
+			newWeight := weight - sg.learningRate*(inputValue*delta*outputWeight)
+			sg.hidden.weights[inWordIndex][featureIndex] = newWeight
+		}
+	}
+
+}
+
+func (sg *SkipGram) not__propagateBackHiddenErrors(outputWordIndex int) {
 	for wordIndex := 0; wordIndex < sg.wordCount; wordIndex++ {
 
 		delta := sg.calculateDelta(wordIndex, outputWordIndex)
