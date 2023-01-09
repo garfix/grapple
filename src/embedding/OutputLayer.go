@@ -17,7 +17,7 @@ func CreateOutputLayer(wordCount int, featureCount int) *OutputLayer {
 	// initialize with random numbers between 0 and 0.1
 	for i := range weights {
 		for j := range weights[i] {
-			weights[i][j] = rand.Float64() / 10.0
+			weights[i][j] = rand.Float64() / 100.0
 		}
 	}
 
