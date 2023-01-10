@@ -3,12 +3,11 @@ package nn
 import "math/rand"
 
 type ThreeLayerNetwork struct {
-	inputCount  int
-	hiddenLayer *Layer
-	outputLayer *Layer
+	learningRate float64
+	inputCount   int
+	hiddenLayer  *Layer
+	outputLayer  *Layer
 }
-
-const learningRate = 0.5
 
 // class NeuralNetwork:
 //     LEARNING_RATE = 0.5
@@ -22,11 +21,12 @@ const learningRate = 0.5
 //         self.init_weights_from_inputs_to_hidden_layer_neurons(hidden_layer_weights)
 //         self.init_weights_from_hidden_layer_neurons_to_output_layer_neurons(output_layer_weights)
 
-func CreateThreeLayerNetwork(inputCount int, hiddenCount int, outputCount int, hiddenBias float64, outputBias float64) *ThreeLayerNetwork {
+func CreateThreeLayerNetwork(learningRate float64, inputCount int, hiddenCount int, outputCount int, hiddenBias float64, outputBias float64) *ThreeLayerNetwork {
 	network := &ThreeLayerNetwork{
-		inputCount:  inputCount,
-		hiddenLayer: CreateLayer(hiddenCount, hiddenBias),
-		outputLayer: CreateLayer(outputCount, outputBias),
+		learningRate: learningRate,
+		inputCount:   inputCount,
+		hiddenLayer:  CreateLayer(hiddenCount, hiddenBias),
+		outputLayer:  CreateLayer(outputCount, outputBias),
 	}
 
 	network.initWeightsFromInputsToHiddenLayerNeurons()
@@ -48,7 +48,7 @@ func CreateThreeLayerNetwork(inputCount int, hiddenCount int, outputCount int, h
 func (network *ThreeLayerNetwork) initWeightsFromInputsToHiddenLayerNeurons() {
 	for h := 0; h < len(network.hiddenLayer.nodes); h++ {
 		for i := 0; i < network.inputCount; i++ {
-			network.hiddenLayer.nodes[h].weights = append(network.hiddenLayer.nodes[h].weights, rand.Float64())
+			network.hiddenLayer.nodes[h].weights = append(network.hiddenLayer.nodes[h].weights, rand.Float64()/100.0)
 		}
 	}
 }
@@ -66,7 +66,7 @@ func (network *ThreeLayerNetwork) initWeightsFromInputsToHiddenLayerNeurons() {
 func (network *ThreeLayerNetwork) initWeightsFromHiddenLayerNeuronsToOutputLayerNeurons() {
 	for o := 0; o < len(network.outputLayer.nodes); o++ {
 		for h := 0; h < len(network.hiddenLayer.nodes); h++ {
-			network.outputLayer.nodes[o].weights = append(network.outputLayer.nodes[o].weights, rand.Float64())
+			network.outputLayer.nodes[o].weights = append(network.outputLayer.nodes[o].weights, rand.Float64()/100.0)
 		}
 	}
 }
@@ -147,7 +147,7 @@ func (network *ThreeLayerNetwork) Train(trainingInputs []float64, trainingOutput
 	for o := 0; o < len(network.outputLayer.nodes); o++ {
 		for w_ho := 0; w_ho < len(network.outputLayer.nodes[o].weights); w_ho++ {
 			pdErrorWrtWeight := pdErrorsWrtOutputNeuronTotalNetInput[o] * network.outputLayer.nodes[o].calculatePdTotalNetInputWrtWeight(w_ho)
-			network.outputLayer.nodes[o].weights[w_ho] -= learningRate * pdErrorWrtWeight
+			network.outputLayer.nodes[o].weights[w_ho] -= network.learningRate * pdErrorWrtWeight
 		}
 	}
 
@@ -164,7 +164,7 @@ func (network *ThreeLayerNetwork) Train(trainingInputs []float64, trainingOutput
 	for h := 0; h < len(network.hiddenLayer.nodes); h++ {
 		for w_ih := 0; w_ih < len(network.hiddenLayer.nodes[h].weights); w_ih++ {
 			pdErrorWrtWeight := pdErrorsWrtHiddenNeuronTotalNetInput[h] * network.hiddenLayer.nodes[h].calculatePdTotalNetInputWrtWeight(w_ih)
-			network.hiddenLayer.nodes[h].weights[w_ih] -= learningRate * pdErrorWrtWeight
+			network.hiddenLayer.nodes[h].weights[w_ih] -= network.learningRate * pdErrorWrtWeight
 		}
 	}
 

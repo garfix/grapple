@@ -15,10 +15,10 @@ type SkipGram struct {
 	nn *nn.ThreeLayerNetwork
 }
 
-func CreateSkipGram(wordCount int, featureCount int, windowSize int, learningrate float64) *SkipGram {
+func CreateSkipGram(wordCount int, featureCount int, windowSize int, learningRate float64) *SkipGram {
 	return &SkipGram{
 		windowSize: windowSize,
-		nn:         nn.CreateThreeLayerNetwork(wordCount, featureCount, wordCount, 0.0, 0.0),
+		nn:         nn.CreateThreeLayerNetwork(learningRate, wordCount, featureCount, wordCount, 0.0, 0.0),
 		// input:        CreateInputLayer(wordCount),
 		// hidden:       CreateHiddenLayer(wordCount, featureCount),
 		// output:       CreateOutputLayer(wordCount, featureCount),

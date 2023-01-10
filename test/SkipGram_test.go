@@ -12,6 +12,8 @@ type block struct {
 	word1 string
 	word2 string
 	sim   float64
+	f1    []float64
+	f2    []float64
 }
 
 type BySim []block
@@ -43,7 +45,7 @@ func TestSkipGram(t *testing.T) {
 	// the black cat sat on the couch and the brown dog slept on the rug
 	input := []int{1, 2, 3, 4, 5, 1, 6, 7, 1, 8, 9, 10, 5, 1, 11}
 
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 1000; i++ {
 		skipGram.Train(input)
 	}
 
@@ -53,8 +55,9 @@ func TestSkipGram(t *testing.T) {
 		for j := i + 1; j < 11; j++ {
 			f1 := skipGram.GetWordFeatures(i + 1)
 			f2 := skipGram.GetWordFeatures(j + 1)
-			sim := embedding.CalculateCosineSimilarity(f1, f2)
-			blocks = append(blocks, block{words[i+1], words[j+1], sim})
+			// sim := embedding.CalculateCosineSimilarity(f1, f2)
+			sim := embedding.DotProduct(f1, f2)
+			blocks = append(blocks, block{words[i+1], words[j+1], sim, f1, f2})
 		}
 	}
 
@@ -63,6 +66,10 @@ func TestSkipGram(t *testing.T) {
 	for i := 0; i < len(blocks); i++ {
 		block := blocks[len(blocks)-1-i]
 		fmt.Printf("%s - %s: %f\n", block.word1, block.word2, block.sim)
+		// for k := 0; k < 300; k++ {
+		// 	fmt.Printf("%f - %f\n", block.f1[k], block.f2[k])
+		// }
+		// break
 	}
 
 	// blackFeatures := skipGram.GetWordFeatures(2)

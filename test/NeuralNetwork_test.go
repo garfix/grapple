@@ -34,7 +34,7 @@ func TestNeuralNetwork(t *testing.T) {
 	//     nn.train([0.05, 0.1], [0.01, 0.99])
 	//     print(i, round(nn.calculate_total_error([[[0.05, 0.1], [0.01, 0.99]]]), 9))
 
-	neuralNetwork := nn.CreateThreeLayerNetwork(2, 2, 2, 0.35, 0.6)
+	neuralNetwork := nn.CreateThreeLayerNetwork(0.5, 2, 2, 2, 0.35, 0.6)
 	for i := 0; i < 500; i++ {
 		neuralNetwork.Train([]float64{0.05, 0.1}, []float64{0.01, 0.99})
 		// fmt.Printf("%d, %f\n", i, neuralNetwork.CalculateTotalError([][][]float64{
@@ -59,7 +59,7 @@ func TestNeuralNetwork(t *testing.T) {
 		{{1.1, 1.1}, {0.0}},
 	}
 
-	neuralNetwork2 := nn.CreateThreeLayerNetwork(2, 5, 1, 0.35, 0.6)
+	neuralNetwork2 := nn.CreateThreeLayerNetwork(0.5, 2, 5, 1, 0.35, 0.6)
 	for i := 0; i < 10000; i++ {
 		for j := 0; j < 4; j++ {
 			neuralNetwork2.Train(training_sets[j][0], training_sets[j][1])
