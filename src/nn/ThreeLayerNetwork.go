@@ -3,10 +3,11 @@ package nn
 import "math/rand"
 
 type ThreeLayerNetwork struct {
-	learningRate float64
-	inputCount   int
-	hiddenLayer  *Layer
-	outputLayer  *Layer
+	weightLearningRate float64
+	biasLearningRate   float64
+	inputCount         int
+	hiddenLayer        *Layer
+	outputLayer        *Layer
 }
 
 // class NeuralNetwork:
@@ -21,12 +22,14 @@ type ThreeLayerNetwork struct {
 //         self.init_weights_from_inputs_to_hidden_layer_neurons(hidden_layer_weights)
 //         self.init_weights_from_hidden_layer_neurons_to_output_layer_neurons(output_layer_weights)
 
-func CreateThreeLayerNetwork(learningRate float64, inputCount int, hiddenCount int, outputCount int, hiddenBias float64, outputBias float64) *ThreeLayerNetwork {
+func CreateThreeLayerNetwork(inputCount int, hiddenCount int, outputCount int, hiddenBias float64, outputBias float64, weightLearningRate float64, biasLearningRate float64) *ThreeLayerNetwork {
 	network := &ThreeLayerNetwork{
-		learningRate: learningRate,
-		inputCount:   inputCount,
-		hiddenLayer:  CreateLayer(hiddenCount, hiddenBias),
-		outputLayer:  CreateLayer(outputCount, outputBias),
+		weightLearningRate: weightLearningRate,
+		biasLearningRate:   biasLearningRate,
+
+		inputCount:  inputCount,
+		hiddenLayer: CreateLayer(hiddenCount, hiddenBias),
+		outputLayer: CreateLayer(outputCount, outputBias),
 	}
 
 	network.initWeightsFromInputsToHiddenLayerNeurons()
@@ -147,8 +150,11 @@ func (network *ThreeLayerNetwork) Train(trainingInputs []float64, trainingOutput
 	for o := 0; o < len(network.outputLayer.nodes); o++ {
 		for w_ho := 0; w_ho < len(network.outputLayer.nodes[o].weights); w_ho++ {
 			pdErrorWrtWeight := pdErrorsWrtOutputNeuronTotalNetInput[o] * network.outputLayer.nodes[o].calculatePdTotalNetInputWrtWeight(w_ho)
-			network.outputLayer.nodes[o].weights[w_ho] -= network.learningRate * pdErrorWrtWeight
+			network.outputLayer.nodes[o].weights[w_ho] -= network.weightLearningRate * pdErrorWrtWeight
 		}
+
+		pdErrorWrtBias := pdErrorsWrtOutputNeuronTotalNetInput[o] * 1
+		network.outputLayer.nodes[o].bias -= network.biasLearningRate * pdErrorWrtBias
 	}
 
 	//         # 4. Update hidden neuron weights
@@ -164,8 +170,11 @@ func (network *ThreeLayerNetwork) Train(trainingInputs []float64, trainingOutput
 	for h := 0; h < len(network.hiddenLayer.nodes); h++ {
 		for w_ih := 0; w_ih < len(network.hiddenLayer.nodes[h].weights); w_ih++ {
 			pdErrorWrtWeight := pdErrorsWrtHiddenNeuronTotalNetInput[h] * network.hiddenLayer.nodes[h].calculatePdTotalNetInputWrtWeight(w_ih)
-			network.hiddenLayer.nodes[h].weights[w_ih] -= network.learningRate * pdErrorWrtWeight
+			network.hiddenLayer.nodes[h].weights[w_ih] -= network.weightLearningRate * pdErrorWrtWeight
 		}
+
+		pdErrorWrtBias := pdErrorsWrtHiddenNeuronTotalNetInput[h] * 1
+		network.hiddenLayer.nodes[h].bias -= network.biasLearningRate * pdErrorWrtBias
 	}
 
 }

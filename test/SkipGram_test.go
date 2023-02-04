@@ -26,7 +26,7 @@ func TestSkipGram(t *testing.T) {
 
 	// rand.Seed(time.Now().UnixNano())
 
-	skipGram := embedding.CreateSkipGram(20, 300, 2, 0.5)
+	skipGram := embedding.CreateSkipGram(20, 300, 1, 0.5)
 
 	words := map[int]string{
 		1:  "the",

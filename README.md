@@ -28,3 +28,11 @@ Embedders:
 - continuous bag of words (CBOW)
 
 I will implement skip-gram
+
+## Transformer implementations
+
+https://www.tensorflow.org/text/tutorials/transformer#create_the_transformer
+
+https://pytorch.org/docs/master/generated/torch.nn.Transformer.html
+
+thanks to https://github.com/huggingface/transformers/issues/4817

@@ -2,6 +2,8 @@ package nn
 
 import "math"
 
+// import "math"
+
 type Node struct {
 	bias    float64
 	inputs  []float64
